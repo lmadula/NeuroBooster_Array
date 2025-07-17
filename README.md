@@ -15,17 +15,17 @@ This folder contains the main Bash script that automates the core steps of the a
 
 - Variant annotation using ANNOVAR
 
-Exporting the cleaned and annotated data into a format suitable for downstream statistical analysis in R
+- Exporting the cleaned and annotated data into R
 
 R/
 
-This folder contains the R script titled MSc_analysis.R, which performs:
+- This folder contains the R script titled MSc_analysis.R, which performs:
 
-Data import 
+- Data import 
 
-Visualization of key results (e.g., Number of variants per gene/chromosome, amino acid change, allele frequency, etc.)
+- Visualization of key results (e.g., Number of variants per gene/chromosome, amino acid change, allele frequency, etc.)
 
-Summary tables and figures
+- Summary tables and figures
 
 
 📊 Data Description
