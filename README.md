@@ -10,15 +10,21 @@ Bash_script/
 This folder contains the main Bash script that automates the core steps of the analysis workflow, including:
 
 Quality control and filtering using PLINK
+
 Data formatting and preprocessing
+
 Variant annotation using ANNOVAR
+
 Exporting the cleaned and annotated data into a format suitable for downstream statistical analysis in R
 
 R/
 
 This folder contains the R script titled MSc_analysis.R, which performs:
+
 Data import 
+
 Visualization of key results (e.g., Number of variants per gene/chromosome, amino acid change, allele frequency, etc.)
+
 Summary tables and figures
 
 
