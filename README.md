@@ -1,10 +1,11 @@
-🧠 Computational Workflow for Parkinson’s Disease Screening
-Developed during MSc Research
+🧠 Computational Workflow for Parkinson’s Disease Screening, Developed during MSc Research.
+
 This repository contains the complete computational workflow I developed during my Master’s research project focused on screening for neurodegenerative disorders, with a specific emphasis on Parkinson’s disease.
 
 The analysis is based on genotyping array data, and the workflow is designed to streamline the process of data quality control, annotation, and statistical analysis using widely adopted bioinformatics tools.
 
 📁 Folder Structure & Scripts
+
 Bash_script/
 This folder contains the main Bash script that automates the core steps of the analysis workflow, including:
 Quality control and filtering using PLINK
