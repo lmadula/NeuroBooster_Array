@@ -33,17 +33,26 @@ R/
 The analysis is based on SNP array genotype data derived from case-control samples relevant to Parkinson’s disease. The dataset includes individual-level genotype calls, which were processed to identify variants potentially associated with disease phenotypes.
 
 🎯 Objectives
+
 The primary goals of this workflow are to:
-Conduct a reliable and reproducible quality control of genotyping data
-Functionally annotate variants 
-Identify variants associated with Parkinson’s disease (By filtering based Parkinson/Parkinsonian and prioritised the variants using _in-silico_ prediction tools)
-Provide a structured and automated workflow that can be reused or adapted for related studies
+
+- Conduct a reliable and reproducible quality control of genotyping data
+  
+- Functionally annotate variants
+   
+- Identify variants associated with Parkinson’s disease (By filtering observations based on Parkinson/Parkinsonian and prioritised the variants using _in-silico_ prediction tools)
+  
+- Provide a structured and automated workflow that can be reused or adapted for related studies
 
 🔁 Reproducibility
+
 All scripts are documented and organized to ensure reproducibility. To run the complete workflow:
-Start with the Bash script located in Bash_script/
-Follow the automated steps for quality control and annotation
-Export the processed data and run the MSc_analysis.R script in the R/ folder for further analysis
+
+- Start with the Bash script located in Bash_script/
+ 
+- Follow the automated steps for quality control and annotation
+
+- Export the processed data and run the MSc_analysis.R script in the R/ folder for further analysis
 
 📜 License
 This project is released under the MIT License.
