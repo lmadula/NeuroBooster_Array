@@ -1,0 +1,1433 @@
+---
+title: "Analysis"
+author: "Lusanda_Madula"
+date: "2024-08-26"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load the packages
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(pheatmap)
+library(RColorBrewer)
+library(skimr)
+library(visdat)
+library(ggthemes)
+library(viridis)
+library(readxl)
+```
+
+# Load the dataset for different patients. The output if from VEP(Variant effect predictor)
+
+```{r}
+## For patient one (ZA154)
+
+### Using the pathogenicity prediction tools (MetaLR AND MetaSVM)
+
+merged_data_metalr_metaSVM <- read_csv("merged_data_metalr&metaSVM.csv", show_col_types = FALSE)
+
+## Filter based on the clinical significance
+list_of_pathogenic_unsolved <- merged_data_metalr_metaSVM %>% 
+                                filter(str_detect(CLNSIG,
+                               regex("(pathogenic|likely pathogenic)",
+                                  ignore_case = TRUE))) 
+
+
+                                      #select(patient_ID,SEX,AGE,age_of_onset,sample_id,
+                                   #HEROZYGOSITY_HOMOZYGOSITY,avsnp147,
+                                #Gene.refGene,Exon,nucleotide_change,protein_change, CLNSIG,
+                                  #  SIFT_score:CADD_phred, contains("AF"))
+
+G2019S_ZA154 <- read_delim("Data_VEP_output/G2019S_ZA154.txt",delim = "\t", 
+                           escape_double = FALSE,trim_ws = TRUE, show_col_types = FALSE)
+
+ZA154 <- read_delim("Data_VEP_output/G2019S_ZA154.txt",delim = "\t", 
+                         escape_double = FALSE,trim_ws = TRUE, show_col_types = FALSE)
+
+## Select only the columns that are essential and look at the location of LRRK2
+
+essential_variables_1<- ZA154 %>% 
+                        filter(str_detect(Location, "^12:40340400+")) %>% 
+                        select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+                
+## For patient two
+G2019S_ZA456 <- read_delim("Data_VEP_output/G2019S_ZA456.txt",delim = "\t", 
+                           escape_double = FALSE,trim_ws = TRUE, show_col_types = FALSE)
+
+## Select only the columns that are essential and look at the location of LRRK2
+essential_variables_2 <- G2019S_ZA456 %>% 
+                        filter(str_detect(Location, "^12:40340400+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+
+
+## For patient three
+
+G2019S_ZA206 <- read_delim("Data_VEP_output/G2019S_ZA206.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_3 <- G2019S_ZA206 %>% 
+                        filter(str_detect(Location, "^12:40340400+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+## For patient four
+
+G2019S_ZA594 <- read_delim("Data_VEP_output/G2019S_ZA594.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_4<- G2019S_ZA594 %>% 
+                        filter(str_detect(Location, "^12:40340400+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+
+## For patient five
+
+G2019S_ZA523 <- read_delim("Data_VEP_output/G2019S_ZA523.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_5<- G2019S_ZA523 %>% 
+                        filter(str_detect(Location, "^12:40340400+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+
+## For patient six
+
+G2019S_ZA85 <- read_delim("Data_VEP_output/G2019S_ZA85.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_6<- G2019S_ZA85 %>% 
+                        filter(str_detect(Location, "^12:40340400+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+
+
+## For patient seven
+G2019S_ZA40 <- read_delim("Data_VEP_output/G2019S_ZA40.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_7<- G2019S_ZA40 %>% 
+                        filter(str_detect(Location, "^12:40340400+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+
+## For patient 8
+G2019S_ZA133 <- read_delim("Data_VEP_output/G2019S_ZA133.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_8<- G2019S_ZA133 %>% 
+                        filter(str_detect(Location, "^12:40340400+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+
+## For patient 9
+R1441C_ZA224 <- read_delim("Data_VEP_output/R1441C_ZA224.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+
+essential_variables_9<- R1441C_ZA224 %>% 
+                        filter(str_detect(Location, "^12:40310434+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+
+
+## For patient 10
+G430D_ZA108 <- read_delim("Data_VEP_output/G430D_ZA108.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_10 <- G430D_ZA108 %>% 
+                        filter(str_detect(Location, "^6:161350208+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+## For patient 11
+R275W_M432V_ZA340 <- read_delim("Data_VEP_output/R275W_M432V_ZA340.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_11 <- R275W_M432V_ZA340 %>% 
+                        filter(str_detect(Location, "^6:161785820+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+## Using the different variant M432V_340
+
+R275W_M432V_ZA340 <- read_delim("Data_VEP_output/R275W_M432V_ZA340.txt",delim = "\t", escape_double = FALSE,trim_ws = TRUE)
+
+essential_variables_12 <- R275W_M432V_ZA340 %>% 
+                        filter(str_detect(Location, "^6:161350203+")) %>% 
+                         select(Location,SYMBOL,Allele, REF_ALLELE,STRAND,UPLOADED_ALLELE, 
+                               Protein_position, Amino_acids, Codons, 
+                                Existing_variation, CADD_PHRED, PHENOTYPES, SIFT, PolyPhen)
+
+
+
+
+### draw the graph of the varinats present in NBA
+my_data_gene <- data.frame(
+                  Gene = c("Other", "GBA", "LRKK2", "PRKN", "PINK1", "PARK7", "VPS35", "SNCA"),
+                    Variants = c(521, 404, 150, 133, 107, 22, 21, 10)
+                          )
+
+ p <-  ggplot(my_data_gene, aes(x = reorder(Gene, -Variants), y = Variants)) +
+  geom_col(stat= "identity",color="black", fill = "steelblue", width = 0.40) +
+    geom_text(aes(label = Variants), vjust = -0.5, size = 4)+
+   labs(
+    x = "Gene symbol",
+    y = "Number of Variants"
+  ) +
+  theme_minimal()+
+    theme(
+    axis.text.x = element_text(angle=45, vjust = 1, hjust = 1, size = 12),
+    axis.text.y = element_text(size=12),     # Increase y-axis
+    axis.title.x = element_text(size = 16),  # Increase x-axis title size
+    axis.title.y = element_text(size = 16),# Increase y-axis title size
+   plot.title = element_text(size = 20, hjust = 0.5)) # Increase title size and center it
+
+
+ ###  Automatically save the plot
+ggsave("Figures/gene_variants_NBA.png", p, width = 10, height = 6)
+  
+ 
+  
+  
+  
+  
+
+
+
+
+```
+
+
+
+# Import the prioritised variants and make a table or bar graph for the summary
+
+
+```{r}
+prioritized_variants <- read_csv("C:/Users/madul/OneDrive - Stellenbosch University/Stellenbosch University/Stellenbosch University/Masters/Solved _cases/prioritized_variants.csv", show_col_types = FALSE)
+
+## select the essential column and make a summarry
+solved_prioritised_list <- prioritized_variants %>% 
+                              select(Chr:Alt, Gene.refGene, avsnp147)
+write.csv(solved_prioritised_list, "solved_priotitised_list.csv", row.names = FALSE)
+
+
+### Import the prioritised variants for unsolved cases and draw the bar graph.
+
+prioritized_variants <- read_csv("C:/Users/madul/OneDrive - Stellenbosch University/Stellenbosch University/Stellenbosch University/Masters/Unsolved_cases/prioritized_variants.csv", show_col_types=FALSE)
+
+### Group based on chromosome and gene
+prioritized_chr <- prioritized_variants %>% group_by(Chr) %>% count()
+
+p <- prioritized_chr %>% 
+  ggplot(aes(x = reorder(Chr,-n), y = n, label = n))+
+  geom_col(stat= "identity", color= "black", fill= "steelblue", width= 0.40) +
+  geom_text(aes(label = n), vjust = -0.5, size = 4)+
+  labs(x= "Type of chromosome ", y= "Number of variants")+
+   theme_minimal()+
+   theme(
+    axis.text.x = element_text(vjust = 1, hjust = 1, size = 12),
+    axis.text.y = element_text(size=12),     # Increase y-axis
+    axis.title.x = element_text(size = 16),  # Increase x-axis title size
+    axis.title.y = element_text(size = 16),# Increase y-axis title size
+   plot.title = element_text(size = 20, hjust = 0.5))
+
+ ### Automatically save the plot
+ggsave("Figures/prio_chro_plot_solved.png", p, width = 10, height = 6)
+
+
+### Grop based by gene
+
+### Group the data by genes to count the number of variants associated with each gene.
+
+prio_genes <- prioritized_variants %>% 
+                    group_by(Gene.refGene) %>% summarise(n=n())
+
+p <-  prio_genes%>%
+  ggplot(aes(x= reorder(Gene.refGene,-n), y= n, label = n)) +
+  geom_col(stat= "identity", color= "black", fill= "steelblue", width = 0.40)+
+  geom_text(aes(label = n), vjust = -0.5, size = 4)+
+  labs(x= "Gene symbol", y= "Number of variants")+
+  theme_minimal()+
+   theme(
+    axis.text.x = element_text(angle=45, vjust = 1, hjust = 1, size = 12),
+    axis.text.y = element_text(size=12),     # Increase y-axis
+    axis.title.x = element_text(size = 16),  # Increase x-axis title size
+    axis.title.y = element_text(size = 16),# Increase y-axis title size
+   plot.title = element_text(size = 20, hjust = 0.5)) # Increase title size and center it
+
+###  Automatically save the plot
+ggsave("Figures/pri_genes_plot_solved.png", p, width = 10, height = 6)
+  
+  
+
+
+
+```
+
+# Load the dataset for all positive control from ANNOVAR
+
+```{r}
+## Original dataset
+
+#myanno_hg38_multianno <- read.csv("Data_VEP_output/myanno.hg38_multianno.csv")
+
+##Select the essential variables
+
+#annovar_positive_controls <- myanno_hg38_multianno %>% 
+                             # select(Chr:Gene.refGene, AAChange.refGene, ExonicFunc.refGene,  
+                                    # avsnp147, SIFT_score, Polyphen2_HDIV_score, 
+                                     #FATHMM_score, CADD_phred, CLNDN,-End, CLNSIG)
+
+## Renaming the second variable to be the same the vcf variable (POS), means position of the variant
+#annovar_positive_controls <- annovar_positive_controls %>% rename(POS=Start)
+
+
+##Filter rows containing "Parkinson" or "Parkinsonian" 
+
+#Phenotype_PD <- annovar_positive_controls %>%
+                #filter(str_detect(CLNDN, regex("Parkinson|Parkinsonian", ignore_case = TRUE))) %>%                          #mutate(Parkinson_disease = sapply(str_extract_all(CLNDN, 
+                                  #regex("([^|]*Parkinson[^|]*|[^|]*Parkinsonian[^|]*)",
+                                       # ignore_case =TRUE)),function(x) paste(x, collapse = ", ")))
+
+
+#### VERY IMPORTANT
+### Filter based on the phenotype of PD
+myanno_hg38_multianno <- read_csv("C:/Users/madul/OneDrive - Stellenbosch University/Stellenbosch University/Stellenbosch University/Masters/Unsolved_cases/myanno.hg38_multianno.csv", show_col_types = FALSE)
+
+
+
+Phenotype_PD <- myanno_hg38_multianno %>%
+                filter(str_detect(CLNDN, regex("Parkinson|Parkinsonian", ignore_case = TRUE))) %>%                          mutate(Parkinson_disease = sapply(str_extract_all(CLNDN, 
+                                  regex("([^|]*Parkinson[^|]*|[^|]*Parkinsonian[^|]*)",
+                                       ignore_case =TRUE)),function(x) paste(x, collapse = ", ")))
+
+
+
+##Filter Variants based on the in silico pathogenicity prediction tools
+
+cadd_cutoff <- 20
+polyphen_cutoff <- 0.5
+sift_cutoff <- 0.05
+fathmm_cutoff <- 0
+
+# Filter Variants based on in silico pathogenicity prediction tools
+
+filtered_variants <- Phenotype_PD %>%
+    filter(CADD_phred >= cadd_cutoff |
+           Polyphen2_HDIV_score > polyphen_cutoff |
+           SIFT_score < sift_cutoff |
+           FATHMM_score < fathmm_cutoff) %>% distinct()
+
+
+
+unique(filtered_variants$avsnp147)
+
+
+
+
+##Extract the information based on the exon
+
+#Phenotype_PD <- Phenotype_PD %>%
+                   #mutate(exon_extract = str_extract_all(AAChange.refGene, "exon[^,]*") %>% 
+                      #sapply(function(x) paste(gsub('c\\(|"|', '', x), collapse = ";")))
+
+
+
+##Define Filtering Criteria (based on the in silico pathogenicity prediction scores)
+
+#cadd_cutoff <- 20
+#polyphen_cutoff <- 0.5
+#sift_cutoff <- 0.05 
+#fathmm_cutoff <- 0
+
+##Filter Variants based on the in silico pathogenicity prediction tools
+
+#filtered_variants_phenotye <- Phenotype_PD %>%
+                              # filter(CADD_phred >= cadd_cutoff |
+                                     # Polyphen2_HDIV_score > polyphen_cutoff |
+                                        # < sift_cutoff |
+                                        # FATHMM_score < fathmm_cutoff) %>%
+                                # distinct()
+
+##Display the filtered variants
+#write.csv(filtered_variants_phenotye, "pririotised_variants.csv", row.names = FALSE)
+#print(filtered_variants_phenotye)
+
+##Screen all patient using their rsID's
+##Define the rsIDs to extract
+
+#rsids_to_extract <- c("rs34637584", "rs33939927", "rs191486604", "rs34424986", "rs756783990")
+
+##Filter the dataset
+#filter_phenotypes_PD <- Phenotype_PD %>% 
+                          #filter(avsnp147 %in% rsids_to_extract)
+
+## save as csv
+#selected_filter_phenotypes <- filter_phenotypes_PD %>% 
+                              #select(Chr, Start,Ref,Alt,Func.refGene, Gene.refGene,
+                                     #exon_extract, ExonicFunc.refGene, avsnp147,
+                                     #SIFT_score:CADD_phred, Parkinson_disease)
+
+#write.csv(selected_filter_phenotypes, "Selected_filte.csv", row.names = FALSE)
+
+
+```
+
+
+## Importing one vcf file
+```{r}
+#STELLENBOS_001505_s1_STELLENBOS_001505_s1 <- #read_delim("VCF_for_parient/STELLENBOS_001505_s1_STELLENBOS_001505_s1.vcf",
+                                                       # delim = "\t", escape_double = FALSE,
+                                                       # col_names = FALSE, comment = "#", trim_ws=TRUE)
+
+
+## Rename the vcf columns
+#colnames(STELLENBOS_001505_s1_STELLENBOS_001505_s1) <- c("CHROM", "POS","ID", "REF", "ALT", "QUAL", #"FILTER","INFO", "GENOTYPE", "HETEROZYGOSITY_HOMOZYGOSITY")
+
+## add a new column for the vcf source
+#STELLENBOS_001505_s1_STELLENBOS_001505_s1 <- STELLENBOS_001505_s1_STELLENBOS_001505_s1 %>% 
+                                    #mutate(VCF_SOURCE="STELLENBOS_001505_s1_STELLENBOS_001505_s1.vcf")
+
+
+## Ensure that POS columns in both CSV and vcf are numeric
+ #filtered_variants_phenotye$POS <- as.numeric(as.character(filtered_variants_phenotye$POS))
+# class(filtered_variants_phenotye)
+ 
+#STELLENBOS_001505_s1_STELLENBOS_001505_s1$POS <- #as.numeric(as.character(STELLENBOS_001505_s1_STELLENBOS_001505_s1$POS))
+
+## Removes rows with NA values in POS from the CSV and vcf data
+##filtered_variants_phenotye <- filtered_variants_phenotye %>% filter(!is.na(POS))
+#STELLENBOS_001505_s1_STELLENBOS_001505_s1 <- STELLENBOS_001505_s1_STELLENBOS_001505_s1 %>% #filter(!is.na(POS))
+
+## Filter the csv file based on matching position with vcf file
+#aligned_data <- filtered_variants_phenotye %>% 
+                filter(POS %in% STELLENBOS_001505_s1_STELLENBOS_001505_s1$POS)
+
+## Merge the filtered CSV data with the vcf data based on position
+#merged_data <- aligned_data %>% 
+                #left_join(STELLENBOS_001505_s1_STELLENBOS_001505_s1, by="POS")
+
+```
+
+## Import the covariat and combine it with the prioritized variants.
+
+```{r}
+### Load the datasets
+
+merged_data <- read_csv("Data_VEP_output/merged_data.csv", show_col_types = FALSE)
+
+unique(merged_data$VCF_SOURCE)
+covariates <- read_delim("Data_VEP_output/covariates.tsv",
+                         delim = "\t", escape_double = FALSE,trim_ws = TRUE, show_col_types = FALSE)
+
+### Remove the first name and live the second name in the vcf source 
+merged_data <- merged_data %>% 
+                 mutate(patient_ID = sub("^[^_]+_[^_]+_[^_]+_(.*\\.vcf)$", "\\1", VCF_SOURCE))
+
+### Remove the ".vcf" extension from all patient_ID values in the merged_data to match the format used in the covariates, and then drop the VCF_SOURCE column.
+
+merged_data$patient_ID <- gsub("\\.vcf$", "", merged_data$patient_ID)
+merged_data <- merged_data %>% select(-VCF_SOURCE)
+
+### Rename the "GP2sampleID" column in the covariates dataset to "patient_ID" for consistency with the merged_data.
+
+covariates <- covariates %>% rename(patient_ID = GP2sampleID) %>% select(-AGE)
+
+### Ensure patient_ID in both datasets are character type
+merged_data$patient_ID <- as.character(merged_data$patient_ID)
+covariates$patient_ID <- as.character(covariates$patient_ID)
+
+### Merge data sets by 'patient_ID', keeping all rows from merged_data
+### Perform left join (to keep all rows from merged_data and add matching rows from covariates)
+
+resolved_cases <- merged_data %>% 
+                    left_join(covariates,by = "patient_ID")
+### Add the age of onset and the ID of the patients using the master key file
+STELLENBOS_key_aug7_2024 <- read_csv("Data_VEP_output/STELLENBOS_key_aug7_2024.csv", show_col_types = FALSE)
+### Convert columns to numeric if they are not already
+STELLENBOS_key_aug7_2024$age_of_onset <- as.numeric(STELLENBOS_key_aug7_2024$age_of_onset)
+STELLENBOS_key_aug7_2024$age <- as.numeric(STELLENBOS_key_aug7_2024$age)
+
+
+### View a few rows of both columns to ensure data looks correct
+head(STELLENBOS_key_aug7_2024[, c("age_of_onset", "age")])
+
+
+### Replace empty spaces with NA for both 'age_of_onset' and 'age' columns
+STELLENBOS_key_aug7_2024$age_of_onset[STELLENBOS_key_aug7_2024$age_of_onset == ""] <- NA
+STELLENBOS_key_aug7_2024$age[STELLENBOS_key_aug7_2024$age == ""] <- NA
+
+### Convert both columns to numeric (will convert any non-numeric values to NA)
+STELLENBOS_key_aug7_2024$age_of_onset <- as.numeric(STELLENBOS_key_aug7_2024$age_of_onset)
+STELLENBOS_key_aug7_2024$age <- as.numeric(STELLENBOS_key_aug7_2024$age)
+Master_key_file <- STELLENBOS_key_aug7_2024 %>% select(GP2sampleID,age_of_onset,sample_id)
+
+resolved_cases <- left_join(resolved_cases,Master_key_file, by = c("patient_ID" = "GP2sampleID"))
+
+### Extract the last exon and  from the 'AAChange.refGene' column
+
+resolved_cases$nucleiotide_protein <- sub(".*(exon\\d+:[^,]+)$", "\\1", resolved_cases$AAChange.refGene)
+
+
+### Extract the nucleotide change (starting with 'c.') and store it in a new column 'nucleotide_change'
+
+resolved_cases$nucleotide_change <- sub(".*(c\\.[^:]+).*", "\\1", resolved_cases$nucleiotide_protein)
+
+### Extract the protein change (starting with 'p.') and store it in a new column 'protein_change'
+
+resolved_cases$protein_change <- sub(".*(p\\.[^,]+).*", "\\1",  resolved_cases$nucleiotide_protein)
+
+### select only the essential columns
+
+list_of_pathogenic_solved <- resolved_cases %>% 
+                        select(patient_ID,SEX,age_of_onset,sample_id,
+                               Chr,
+                               HEROZYGOSITY_HOMOZYGOSITY,avsnp147,
+                                Gene.refGene,nucleotide_change, CLNSIG,
+                                    protein_change,SIFT_score:CADD_phred, contains("AF"))
+
+write.csv(list_of_pathogenic_solved, "list_of_pathogenic_solved.csv", row.names = FALSE)
+
+unique(list_of_pathogenic_solved$patient_ID) ### 12 patients in total having 41 variants.
+unique(list_of_pathogenic_solved$protein_change)
+
+### Group the data by chromosome to determine the number of variants per chromosome.
+
+chr_resolved <- resolved_cases %>% 
+                  group_by(Chr) %>% 
+                    count
+
+ 
+p <- chr_resolved %>% 
+  ggplot(aes(x = reorder(Chr,-n), y = n, label = n))+
+  geom_col(stat= "identity", color= "black", fill= "steelblue", width= 0.40) +
+  geom_text(aes(label = n), vjust = -0.5, size = 4)+
+  labs(x= "Type of chromosome ", y= "Number of variants")+
+   theme_minimal()+
+   theme(
+    axis.text.x = element_text(vjust = 1, hjust = 1, size = 12),
+    axis.text.y = element_text(size=12),     # Increase y-axis
+    axis.title.x = element_text(size = 16),  # Increase x-axis title size
+    axis.title.y = element_text(size = 16),# Increase y-axis title size
+   plot.title = element_text(size = 20, hjust = 0.5))
+
+
+ ### Automatically save the plot
+ggsave("Figures/chromosome_plot_solved.png", p, width = 10, height = 6)
+  
+
+
+
+### Group the data by genes to count the number of variants associated with each gene.
+
+genes_resolved <- resolved_cases %>% 
+                    group_by(Gene.refGene) %>% summarise(n=n())
+
+p <-  genes_resolved %>%
+  ggplot(aes(x= reorder(Gene.refGene,-n), y= n, label = n)) +
+  geom_col(stat= "identity", color= "black", fill= "steelblue", width = 0.40)+
+  geom_text(aes(label = n), vjust = -0.5, size = 4)+
+  labs(x= "Gene symbol", y= "Number of variants")+
+  theme_minimal()+
+   theme(
+    axis.text.x = element_text(angle=45, vjust = 1, hjust = 1, size = 12),
+    axis.text.y = element_text(size=12),     # Increase y-axis
+    axis.title.x = element_text(size = 16),  # Increase x-axis title size
+    axis.title.y = element_text(size = 16),# Increase y-axis title size
+   plot.title = element_text(size = 20, hjust = 0.5)) # Increase title size and center it
+
+  
+
+###  Automatically save the plot
+ggsave("Figures/genes_plot_solved.png", p, width = 10, height = 6)
+  
+
+
+### A Table for different chromosome type
+chr_resolved %>% 
+  arrange(desc(n)) %>% 
+  kable(caption = "Variants present in different chromosome type") %>% 
+  kable_styling(full_width = FALSE, position = "left")
+
+
+
+### A Table for different gene type
+genes_resolved %>%
+  arrange(desc(n)) %>% 
+  kable(caption = "Variants present in different") %>% 
+  kable_styling(full_width = FALSE, position = "left")
+
+
+### Create a new variable, where you see the row that is less than 50 write as a early onset of PD, and greater or equally to 50 indicate late onset of PD
+
+resolved_cases <- resolved_cases %>% 
+  mutate(early_late = ifelse(age_of_onset < 50, "early onset PD", "late onset PD"))
+
+
+### Males versus females 
+### Group the data by sex and early versus late onset to provide an explanation of how many individuals experienced early or late onset of Parkinson's disease (PD).
+
+resolved_cases %>% 
+  group_by(SEX) %>%
+    count()
+
+resolved_cases %>% 
+  group_by(early_late,SEX) %>% 
+    summarise(n=n())
+
+
+
+### Create data frame for early onset cases
+
+early_onset_df <- resolved_cases %>%
+                    filter(early_late == "early onset PD") %>%
+                      select(Chr,patient_ID,age_of_onset,
+                               nucleotide_change,protein_change, 
+                             sample_id, avsnp147, Gene.refGene) %>% distinct()
+
+  write.csv(early_onset_df, "early_onset_solved_cases.csv", row.names = FALSE)
+
+  
+  unique(early_onset_df$Gene.refGene)
+
+### Create data frame for late onset cases
+late_onset_df <- resolved_cases %>%
+                    filter(early_late == "late onset PD") %>% 
+                      select(Chr, patient_ID, age_of_onset, 
+                             nucleotide_change, protein_change,
+                             sample_id,avsnp147, Gene.refGene) %>% distinct()
+
+write.csv(late_onset_df, "late_onset_solved_cases.csv", row.names = FALSE)
+
+unique(late_onset_df$Gene.refGene)
+
+### Create a line graphs that illustrates the allele frequency across global and continental population groups.
+x <- resolved_cases %>% 
+select(avsnp147, starts_with("AF")) %>%
+  arrange(AF) %>%
+  distinct() %>% 
+  pull(avsnp147)
+
+
+
+
+allele_frequency_resolved <- resolved_cases %>% 
+                                select(avsnp147, starts_with("AF")) %>% 
+                                    pivot_longer(cols = starts_with("AF"), 
+                                                names_to = "population", values_to = "af")
+allele_frequency_resolved$avsnp147 <-  factor(allele_frequency_resolved$avsnp147,levels = rev(x))
+
+allele_frequency_resolved %>% 
+ggplot(aes(x = avsnp147, y = af, color = population, group=population)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "rsID", y = "Allele Frequency", title = "Allele Frequency in different Population") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  #scale_color_viridis(discrete = TRUE)
+
+
+
+
+```
+
+
+
+
+
+# Import the unsolved cases
+
+```{r}
+merged_data_unsolved <- read_csv("Data_VEP_output/merged_data_unsolved.csv", show_col_types = FALSE)
+
+unique(merged_data_unsolved$VCF_SOURCE)
+
+### This operation removes the first name from the VCF source string, leaving only the second name, and updates the 'patient_ID' field with the resulting value.
+
+merged_data_unsolved <- merged_data_unsolved %>% 
+                         mutate(patient_ID = sub("^[^_]+_[^_]+_[^_]+_(.*\\.vcf)$", "\\1", VCF_SOURCE))
+
+
+### Remove the ".vcf" extension from all patient_ID values in the merged_data to match the format used in the covariates, and then drop the VCF_SOURCE column.
+
+merged_data_unsolved$patient_ID <- gsub("\\.vcf$", "", merged_data_unsolved$patient_ID)
+merged_data_unsolved <- merged_data_unsolved %>% select(-VCF_SOURCE)
+
+
+### Rename the "GP2sampleID" column in the covariates dataset to "patient_ID" for consistency with the merged_data.
+covariates <- read_delim("Data_VEP_output/covariates.tsv",
+                         delim = "\t", escape_double = FALSE,trim_ws = TRUE, show_col_types = FALSE)
+
+
+covariates <- covariates %>% rename(patient_ID = GP2sampleID)
+
+### Ensure that the patient_ID column in both datasets is of character type for consistency.
+
+merged_data_unsolved$patient_ID <- as.character(merged_data_unsolved$patient_ID)
+covariates$patient_ID <- as.character(covariates$patient_ID)
+
+
+### Merge the datasets by 'patient_ID' using a left join to retain all rows from merged_data and add the matching rows from covariates.
+
+Unsolved_cases <- merged_data_unsolved %>% left_join(covariates,by = "patient_ID")
+
+### Add the age of onset and the ID of the patientsusing the master key file
+STELLENBOS_key_aug7_2024 <- read_csv("Data_VEP_output/STELLENBOS_key_aug7_2024.csv",
+                                     show_col_types = FALSE)
+Master_key_file <- STELLENBOS_key_aug7_2024 %>% select(GP2sampleID, sample_id,age_of_onset, clinical_id)
+Unsolved_cases <- left_join(Unsolved_cases,Master_key_file, by = c("patient_ID" = "GP2sampleID"))
+
+
+### Extract the last exon and  from the 'AAChange.refGene' column
+
+Unsolved_cases$nucleiotide_protein <- sub(".*(exon\\d+:[^,]+)$", "\\1", Unsolved_cases$AAChange.refGene)
+
+### Extract the nucleotide change (starting with 'c.') and store it in a new column 'nucleotide_change'
+
+Unsolved_cases$nucleotide_change <- sub(".*(c\\.[^:]+).*", "\\1", Unsolved_cases$nucleiotide_protein)
+
+### Extract the protein change (starting with 'p.') and store it in a new column 'protein_change'
+
+Unsolved_cases$protein_change <- sub(".*(p\\.[^,]+).*", "\\1",  Unsolved_cases$nucleiotide_protein)
+
+### Extract the exon to be in a new column
+Unsolved_cases$Exon <- str_extract(Unsolved_cases$nucleiotide_protein, "exon\\d+(?=:)")
+
+### Filter and select select only the essential columns
+
+list_of_pathogenic_unsolved <- Unsolved_cases %>% 
+                                filter(str_detect(CLNSIG,
+                               regex("(pathogenic|likely pathogenic)",
+                                  ignore_case = TRUE))) %>% 
+                                      select(patient_ID,SEX,age_of_onset,sample_id,Chr,POS,
+                                   HEROZYGOSITY_HOMOZYGOSITY,avsnp147,
+                                Gene.refGene,Exon,nucleotide_change,protein_change, CLNSIG,
+                                    SIFT_score:CADD_phred, contains("AF")) %>% distinct()
+
+
+write.csv(list_of_pathogenic_unsolved, "list_of_pathogenic_unsolved.csv", row.names = FALSE)
+unique(list_of_pathogenic_unsolved$Gene.refGene)
+unique(list_of_pathogenic_unsolved$avsnp147)
+unique(list_of_pathogenic_unsolved$protein_change)
+
+### Summaries how many where early and late onset based on the 17 variants (48 individual)
+
+Early_onset_unsolved <- list_of_pathogenic_unsolved %>% filter(age_of_onset< 50)
+
+Early_onset_unsolved %>% group_by(SEX) %>% summarise(n=n())
+unique(Early_onset_unsolved$Gene.refGene)
+
+Late_onset_unsolved <- list_of_pathogenic_unsolved %>% filter(age_of_onset >=50) 
+
+Late_onset_unsolved %>% group_by(SEX) %>% count()
+unique(Late_onset_unsolved$Gene.refGene)
+
+
+
+### summarise the list of pathogenic in unsolved but using the bar graph.
+
+unique(list_of_pathogenic_unsolved$patient_ID)
+unique(list_of_pathogenic_unsolved$Gene.refGene)
+list_of_pathogenic_unsolved %>% group_by(protein_change, Gene.refGene) %>% count() %>% distinct()
+
+
+### Group the data by chromosome to determine the number of variants per chromosome.
+
+chr_unsolved <- Unsolved_cases %>% 
+                  group_by(Chr) %>% 
+                   count
+
+p <- chr_unsolved %>% 
+  ggplot(aes(x = reorder(Chr, -n), y = n, label = n)) +
+  geom_col(stat = "identity", color = "black", fill = "steelblue", width = 0.40) +
+  geom_text(aes(label = n), vjust = -0.5, size = 4) +  # Position the number of variants on top of the bars
+  labs(x = "Type of chromosome", y = "Number of variants")+
+ theme_minimal()+
+   theme(
+    axis.text.x = element_text(vjust = 1, hjust = 1, size = 12),  # Increase x-axis text size
+    axis.text.y = element_text(size = 12), # Increase y-axis text size
+  axis.title.x = element_text(size=16),
+   axis.title.y = element_text(size = 16),
+    plot.title = element_text(size = 20, hjust = 0.5)) # Increase title size and center it
+
+
+###  Automatically save the plot
+ggsave("Figures/chromosomes_plot_unsolved.png", p, width = 10, height = 6)
+
+
+### Group the data by genes to count the number of variants associated with each gene.
+
+genes_unsolved <- Unsolved_cases %>% 
+                 group_by(Gene.refGene) %>% summarise(n=n())
+
+p <- genes_unsolved %>%
+  ggplot(aes(x = reorder(Gene.refGene, -n), y = n, label = n)) +
+  geom_col(stat = "identity", color = "black", fill = "steelblue", width = 0.40) +
+  geom_text(aes(label = n), vjust = -0.5, size = 4) +  # Increase size of text on bars
+  labs(x = "Gene symbol", y = "Number of variants") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 12),  # Increase x-axis text size
+    axis.text.y = element_text(size = 12),    # Increase y-axis text
+     axis.title.x = element_text(size=16),   # Increase x-axis text title
+    axis.title.y = element_text(size = 16),  # Increase y-axis text title
+    plot.title = element_text(size = 20, hjust = 0.5))
+
+###  Automatically save the plot
+ggsave("Figures/genes_plot_unsolved.png", p, width = 10, height = 6)
+
+
+genes_unsolved %>%
+  ggplot(aes(x = reorder(Gene.refGene, -n), y = n, label = n)) +
+    geom_col(stat = "identity", color = "black", fill = "steelblue", width = 0.6) +  # Adjusted width for bars
+    geom_text(aes(label = n), vjust = -0.5, size = 3) +  # Position the number of variants on top of the bars
+    labs(title = "Number of variants per gene", 
+         x = "Gene symbol", 
+         y = "Number of variants") +
+    theme_light() +  # Lighter background for a cleaner look
+    theme(
+      axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 12),
+      axis.title.x = element_text(size = 12),  # Increased size for axis titles
+      axis.title.y = element_text(size = 12),
+      plot.title = element_text(size = 14, face = "bold", hjust = 0.5),  # Make the title more prominent
+      panel.grid.major = element_line(color = "gray90"),  # Lighter grid lines for a softer look
+      panel.grid.minor = element_blank()  # Remove minor grid lines for clarity
+    )
+
+### A table categorizing different chromosome types.
+
+chr_unsolved %>% 
+  arrange(desc(n)) %>% 
+  kable(caption = "Variants present in different chromosome type") %>% 
+  kable_styling(full_width = FALSE, position = "left")
+
+
+
+### A Table categorizing different gene type
+
+genes_unsolved %>%
+  arrange(desc(n)) %>% 
+  kable(caption = "Variants present in different") %>% 
+  kable_styling(full_width = FALSE, position = "left")
+
+### Create a new variable, where you see the row that is less than 50 write as a early onset of PD, and greater or equally to 50 indicate late onset of PD
+
+Unsolved_cases <- Unsolved_cases %>% 
+  mutate(early_late = ifelse(AGE < 50, "early onset PD", "late onset PD"))
+
+
+### Males versus females 
+### Group the data by sex and early versus late onset to provide an explanation of how many individuals experienced early or late onset of Parkinson's disease (PD)
+
+Unsolved_cases %>% group_by(SEX) %>% count()
+
+Unsolved_cases %>% 
+  group_by(early_late,SEX) %>% 
+  summarise(n=n()) ## would expect more late onset than early onset for unsolved cases because early onset is normal familial
+
+### Create dataframe for early onset cases
+
+early_onset_df_unsolved <- Unsolved_cases %>%
+                filter(early_late == "early onset PD") %>% 
+                  select(patient_ID, sample_id, age_of_onset,
+                               nucleotide_change,protein_change, 
+                              avsnp147, Gene.refGene) %>% distinct()
+
+write.csv(early_onset_df_unsolved, "early_onset_unsolved_cases.csv", row.names = FALSE)
+
+
+### Create dataframe for late onset cases
+late_onset_df_unsolved <- Unsolved_cases %>%
+                          filter(early_late == "late onset PD")%>% 
+                            select(patient_ID, sample_id, age_of_onset,
+                               nucleotide_change,protein_change, 
+                                 avsnp147, Gene.refGene) %>% distinct()
+
+
+
+write.csv(late_onset_df_unsolved, "late_onset_unsolved_cases.csv", row.names = FALSE)
+
+
+
+ 
+
+#### Need to delete everything that is below this chuck
+Unsolved_cases_pathogenic <- Unsolved_cases %>% 
+  filter(str_detect(CLNSIG, regex("^(pathogenic|likely pathogenic)", ignore_case = TRUE)))
+
+
+# Save the filtered table as a CSV file
+write.csv(Unsolved_cases_pathogenic, "Unsolved_cases_pathogenic.csv", row.names = FALSE)
+
+ y <- Unsolved_cases %>% 
+  filter(str_detect(CLNSIG, regex("(pathogenic|likely pathogenic)", ignore_case = TRUE)))
+
+write.csv(y, "y.csv", row.names = FALSE)
+## Import merged data (Prioritised variants and their variants are merged to their original vcf file) for resolved cases
+
+#merged_data <- read_csv("Data_VEP_output/merged_data.csv", show_col_types = FALSE)
+#merged_data <- merged_data %>% 
+ # mutate(patient_ID = sub("^[^_]+_[^_]+_[^_]+_(.*\\.vcf)$", "\\1", VCF_SOURCE))
+
+## Display summary statistics so that I can quickly  to understand the data
+skimr::skim(merged_data)
+
+## Visualise a dataframe and get a look at the data by displaying the variable classes in a dataframe as a plot with vis_dat and getting a brief look into missing data patterns using vis_ miss
+vis_dat(merged_data)
+vis_miss(merged_data, cluster = TRUE)
+
+# Ensure the relevant columns are factors or characters if they are categorical
+merged_data$Gene.refGene <- as.factor(merged_data$Gene.refGene)
+merged_data$avsnp147 <- as.factor(merged_data$avsnp147)
+
+# Handle missing data 
+merged_data <- merged_data %>% drop_na() %>% distinct()
+levels(merged_data$Gene.refGene)
+
+```
+
+
+### Import the dataset in which the variants were prioritized using MetaLR and MetaSVM
+
+```{r}
+merged_data_metalr_metaSVM <- read_csv("merged_data_metalr&metaSVM.csv", show_col_types = FALSE)
+covariates <- read_delim("Data_VEP_output/covariates.tsv",
+                         delim = "\t", escape_double = FALSE,trim_ws = TRUE, show_col_types = FALSE)
+unique(merged_data_metalr_metaSVM$VCF_SOURCE)
+unique(merged_data_metalr_metaSVM$avsnp147)
+### Remove the first name and live the second name in the vcf source 
+
+merged_data_metalr_metaSVM <- merged_data_metalr_metaSVM %>% 
+                 mutate(patient_ID = sub("^[^_]+_[^_]+_[^_]+_(.*\\.vcf)$", "\\1", VCF_SOURCE))
+
+### Remove the ".vcf" extension from all patient_ID values in the merged_data to match the format used in the covariates, and then drop the VCF_SOURCE column.
+
+merged_data_metalr_metaSVM$patient_ID <- gsub("\\.vcf$", "", merged_data_metalr_metaSVM$patient_ID)
+merged_data_metalr_metaSVM <- merged_data_metalr_metaSVM %>% select(-VCF_SOURCE)
+
+### Rename the "GP2sampleID" column in the covariates dataset to "patient_ID" for consistency with the merged_data.
+
+covariates <- covariates %>% rename(patient_ID = GP2sampleID) %>% select(-AGE)
+
+### Ensure patient_ID in both datasets are character type
+
+merged_data_metalr_metaSVM$patient_ID <- as.character(merged_data_metalr_metaSVM$patient_ID)
+covariates$patient_ID <- as.character(covariates$patient_ID)
+
+### Merge data sets by 'patient_ID', keeping all rows from merged_data
+### Perform left join (to keep all rows from merged_data and add matching rows from covariates)
+
+unsolved_metalLR_metaSVM <- merged_data_metalr_metaSVM %>% 
+                    left_join(covariates,by = "patient_ID")
+### Add the age of onset and the ID of the patients using the master key file
+
+STELLENBOS_key_aug7_2024 <- read_csv("Data_VEP_output/STELLENBOS_key_aug7_2024.csv", show_col_types = FALSE)
+### Convert columns to numeric if they are not already
+
+STELLENBOS_key_aug7_2024$age_of_onset <- as.numeric(STELLENBOS_key_aug7_2024$age_of_onset)
+STELLENBOS_key_aug7_2024$age <- as.numeric(STELLENBOS_key_aug7_2024$age)
+
+
+### View a few rows of both columns to ensure data looks correct
+
+head(STELLENBOS_key_aug7_2024[, c("age_of_onset", "age")])
+
+
+### Replace empty spaces with NA for both 'age_of_onset' and 'age' columns
+
+STELLENBOS_key_aug7_2024$age_of_onset[STELLENBOS_key_aug7_2024$age_of_onset == ""] <- NA
+STELLENBOS_key_aug7_2024$age[STELLENBOS_key_aug7_2024$age == ""] <- NA
+
+### Convert both columns to numeric (will convert any non-numeric values to NA)
+
+STELLENBOS_key_aug7_2024$age_of_onset <- as.numeric(STELLENBOS_key_aug7_2024$age_of_onset)
+STELLENBOS_key_aug7_2024$age <- as.numeric(STELLENBOS_key_aug7_2024$age)
+Master_key_file <- STELLENBOS_key_aug7_2024 %>% select(GP2sampleID,age_of_onset,sample_id)
+
+unsolved_metalLR_metaSVM <- left_join(unsolved_metalLR_metaSVM,Master_key_file,
+                                      by = c("patient_ID" = "GP2sampleID"))
+
+### Extract the last exon and  from the 'AAChange.refGene' column
+
+unsolved_metalLR_metaSVM$nucleiotide_protein <- sub(".*(exon\\d+:[^,]+)$", "\\1", unsolved_metalLR_metaSVM$AAChange.refGene)
+
+
+### Extract the nucleotide change (starting with 'c.') and store it in a new column 'nucleotide_change'
+
+unsolved_metalLR_metaSVM$nucleotide_change <- sub(".*(c\\.[^:]+).*", "\\1", unsolved_metalLR_metaSVM$nucleiotide_protein)
+
+### Extract the protein change (starting with 'p.') and store it in a new column 'protein_change'
+
+unsolved_metalLR_metaSVM$protein_change <- sub(".*(p\\.[^,]+).*", "\\1",  unsolved_metalLR_metaSVM$nucleiotide_protein)
+
+### Extract the exon to be in a new column
+
+unsolved_metalLR_metaSVM$Exon <- str_extract(unsolved_metalLR_metaSVM$nucleiotide_protein, "exon\\d+(?=:)")
+
+
+### select only the essential columns
+
+pathogenic_unsolved_metaLR_metaSVM <- unsolved_metalLR_metaSVM %>% 
+                                filter(str_detect(CLNSIG,
+                               regex("(pathogenic|likely pathogenic)",
+                                  ignore_case = TRUE))) %>% 
+                                      select(patient_ID,SEX,age_of_onset,sample_id,
+                                   HEROZYGOSITY_HOMOZYGOSITY,avsnp147,
+                                Gene.refGene,Exon,nucleotide_change,protein_change, CLNSIG,
+                                    SIFT_score:CADD_phred, contains("AF")) %>% distinct()
+
+unique(pathogenic_unsolved_metaLR_metaSVM$protein_change)
+unique(pathogenic_unsolved_metaLR_metaSVM$avsnp147)
+unique(pathogenic_unsolved_metaLR_metaSVM$Gene.refGene)
+unique(pathogenic_unsolved_metaLR_metaSVM$patient_ID)
+write.csv(pathogenic_unsolved_metaLR_metaSVM, "pathogenic_unsolved_metaLR_metaSVM.csv", row.names = FALSE)
+
+unique(pathogenic_unsolved_metaLR_metaSVM$patient_ID)
+
+list_of_pathogenic_unsolved <- read_csv("C:/Users/madul/OneDrive - Stellenbosch University/Stellenbosch University/Stellenbosch University/Masters/Positive_controls/list_of_pathogenic_unsolved.csv")
+
+```
+ 
+ # Imported Non-PD controls and aligned them to the 17 prioritized variants.
+ 
+```{r}
+
+combined <- read_table("C:/Users/madul/OneDrive - Stellenbosch University/Stellenbosch University/Stellenbosch University/Masters/Positive_controls/combined.vcf",col_names = FALSE)
+
+### Name all the columns
+
+colnames(combined) <- c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", 
+                        "FILTER", "INFO", "FORMAT", "GENOTYPE", "VCF_SOURCE")
+
+any(is.na(combined))
+sum(is.na(combined))
+
+
+### Make the position column to be numeric
+
+combined$POS <- as.numeric(as.character(combined$POS))
+
+### Imported prioritized variants from unsolved cases.
+
+list_of_pathogenic_unsolved <- read_csv("C:/Users/madul/OneDrive - Stellenbosch University/Stellenbosch University/Stellenbosch University/Masters/Positive_controls/list_of_pathogenic_unsolved.csv")
+
+### Make the position column to be numeric
+
+list_of_pathogenic_unsolved$POS <- as.numeric(list_of_pathogenic_unsolved$POS)
+
+### Use the left join for alignment
+
+list_of_pathogenic_unsolved <- list_of_pathogenic_unsolved %>% 
+                                  select (-c(SEX,patient_ID ,age_of_onset, sample_id,
+                                             SIFT_score,Polyphen2_HDIV_score, FATHMM_score,CADD_phred, 
+                                             AF,AF_afr, AF_eas, AF_nfe, AF_sas, 
+                                                nucleotide_change, HEROZYGOSITY_HOMOZYGOSITY, CLNSIG))
+
+
+Non_PD_controls <- list_of_pathogenic_unsolved %>% distinct(POS) %>% 
+                                left_join(combined
+                                          , by= "POS") 
+
+
+write.csv(Non_PD_controls, "Non_PD_control.csv", row.names = FALSE)
+
+  
+  
+# xx <- list_of_pathogenic_unsolved %>% 
+#   
+#   distinct(POS) %>% arrange(POS) %>% 
+# 
+#   left_join(combined)
+#   
+# unique(xx$POS)
+# anti_join(positive_controls_variants
+
+non_PD_frequency<- Non_PD_controls %>% 
+                    group_by(POS,VCF_SOURCE) %>% count() %>% 
+                     mutate(nn= ifelse(is.na(VCF_SOURCE), 0, n)) %>% 
+                       group_by(POS) %>% 
+                        summarise(total = sum(nn)) %>% 
+                          mutate(Frequency_control=total/759*100)
+
+write.csv(non_PD_frequency, "non_PD_frequency.csv", row.names = FALSE)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Draw the heatmap
+
+```{r}
+
+### First install a package
+install.packages("pheatmap")
+### Load the library
+library(pheatmap)
+
+### Draw the heat map for different patients having different variants in different genes
+
+ggplot(merged_data, aes(y= patient_ID, x = avsnp147, fill = HEROZYGOSITY_HOMOZYGOSITY)) +
+  geom_tile() +
+   geom_text(aes(label = HEROZYGOSITY_HOMOZYGOSITY),color = "white", size = 4)+
+  facet_wrap(~Gene.refGene)+  ### I just i wanted to see the het=atmap for each gene so feel free to remove this face wrap.
+  labs(
+    title = "Heatmap of Heterozygosity vs Homozygosity",
+    subtitle = "Variants present in different individuals",
+    x = "Gene Type",
+    y = "Patient ID",
+    fill = "Heterozygosity/Homozygosity"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),  # Rotate x-axis labels 
+    axis.text.y = element_text(size = 8)  # Adjust size in y-axis labels 
+  )+
+  theme_bw()  ### you can also change the theme and put your theme of interest like theme_minimal etc
+  
+
+
+## How many variants per gene
+
+genes <- merged_data %>% 
+  group_by(Gene.refGene) %>% summarise(n=n())
+
+## Bar graph that shows previous creteria 
+genes %>%
+  ggplot(aes(x= reorder(Gene.refGene,-n), y= n, label = n)) +
+  geom_col(stat= "identity", color= "black", fill= "steelblue", width = 0.40)+
+  theme(axis.text.x = element_text(angle = 45, vjust  = 0.5, hjust = 1, size = 6))+
+  labs(title = "Number of variants per gene",x= "Gene symbol", y= "Number of variants")+
+  theme_minimal()
+
+
+
+## Draw the scatter plot graph that shows the scores per individual. However all the scores that are greater 20 are all pathogenic.
+
+merged_data %>%
+  ggplot(aes(x = CADD_phred, y = avsnp147)) +
+  geom_point(color = "steelblue", size = 2, alpha = 0.7) +  # A soft, professional blue color
+  labs(
+    title = "Relationship between CADD Phred Score and rsID",
+    x = "CADD Phred Score",
+    y = "Variant Identifier",
+    caption = "Variant scores present per Individual"
+  ) +
+  theme_minimal()
+
+## or can use the following code
+merged_data %>%
+  ggplot(aes(x = CADD_phred, y = avsnp147)) +
+  geom_point(color = "steelblue", size = 2, alpha = 0.7) +  # Scatter plot with points
+  geom_text(aes(label = CADD_phred), vjust = -0.5, color = "darkgray", size = 3) + 
+  labs(
+    title = "Relationship between CADD Phred Score and rsID",
+    x = "CADD Phred Score",
+    y = "Variant Identifier",
+    caption = "Variant scores present per Individual"
+  ) +
+  theme_minimal()
+
+## Filter only the rows that had pathogenic variants 
+merged_data %>% filter(str_detect(CLNSIG, "Pathogenic")) %>% count()
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Allele frequency
+
+```{r}
+# This allows you to compare the allele frequencies (AF) across different populations (African, East Asian, Non-Finnish European, South Asian).
+# A bar plot can show if there are any noticeable differences in the allele frequency for the variants across these populations, helping me in understand population-specific genetic variation.
+
+# Select the relevant columns 
+af_data <- merged_data[, c("AF", "AF_afr", "AF_eas", "AF_nfe", "AF_sas")]
+
+# Calculate the mean per population group
+af_means <- colMeans(af_data, na.rm = TRUE)
+
+# Define the full names for the populations
+population_names <- c("Global", "African", "East Asian", "Non-Finnish European", "South Asian")
+
+# Create the plot
+ggplot(data.frame(Population = population_names, Mean_AF = af_means), aes(x = Population, y = Mean_AF)) +
+  geom_bar(stat = "identity", fill = c('blue', 'green', 'red', 'orange', 'purple')) +
+  labs(title = "Mean Allele Frequencies across Populations", x = "Population", y = "Mean Allele Frequency") +
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+## Pie chat for clinical significance (Need to knwo how many variants were pathogenic, begin, uncertain)
+
+# Calculate the frequencies of CLNSIG
+clnsig_freq <- merged_data %>%
+  count(CLNSIG) %>%
+  mutate(percentage = n / sum(n) * 100)
+
+# Create a pie chart
+ggplot(clnsig_freq, aes(x = "", y = percentage, fill = CLNSIG)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  labs(title = "Distribution of Clinical Significance") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank())
+
+
+
+
+
+# Calculate the frequencies of CLNSIG
+clnsig_freq <- merged_data %>%
+  count(CLNSIG) %>%
+  mutate(percentage = n / sum(n) * 100)
+
+# Check the number of levels in CLNSIG to determine the number of colors
+num_levels <- length(unique(clnsig_freq$CLNSIG))
+
+# Create a pie chart with percentages inside the circle
+ggplot(clnsig_freq, aes(x = "", y = percentage, fill = CLNSIG)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5),  
+            size = 5, color = "black") +  
+  labs(title = "Distribution of Clinical Significance") +
+  scale_fill_manual(values = RColorBrewer::brewer.pal(num_levels, "Set3")) +
+  theme_minimal() +
+  theme(axis.text.x = element_blank())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
