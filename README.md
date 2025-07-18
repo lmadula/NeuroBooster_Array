@@ -36,6 +36,7 @@ Data statement:
 
 The data was obtained from the Global Parkinson’s Genetics Program (GP2) release 7 (GP2 release 7, DOI: 10.5281/zenodo.10962119) and release 10 and access can be requested through the Accelerating Medicines Partnership in Parkinson’s Disease (AMP-PD) via the online application process (https://www.amp-pd.org/).
 
+
 🎯 Objectives
 
 The primary goals of this workflow are to:
